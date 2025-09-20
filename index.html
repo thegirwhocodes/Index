@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Food Preorder Form</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000000;
+            height: 100vh;
+            overflow: hidden;
+            color: #ffffff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #000000;
+            border-radius: 0;
+            box-shadow: none;
+            overflow: hidden;
+            border: none;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .page-container {
+            position: relative;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.6s ease-in-out, visibility 0.6s ease-in-out;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .page.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            padding: 30px;
+            text-align: center;
+            border-radius: 20px 20px 0 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,107,107,0.1), rgba(255,165,0,0.1));
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 800;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+            background: linear-gradient(135deg, #ff6b6b, #ffa726);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            padding: 80px 40px;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            min-height: 80vh;
+            align-items: center;
+            gap: 60px;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5em;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+
+        .hero-accent {
+            background: linear-gradient(135deg, #ff6b6b, #ffa726);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-content p {
+            font-size: 1.3em;
+            color: #b0b0b0;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .hero-cta .cta-button {
+            background: linear-gradient(135deg, #ff6b6b, #ff5252);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.2em;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(255,107,107,0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(255,107,107,0.4);
+        }
+
+        .hero-image {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .product-card {
+            background: #1a1a1a;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .food-image {
+            font-size: 6em;
+            margin-bottom: 20px;
+        }
+
+        .product-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #ff6b6b;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        /* Form Styles */
+        .form-container {
+            padding: 60px 40px;
+            background: #111111;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .form-header h2 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #ffffff;
+        }
+
+        .form-header p {
+            font-size: 1.2em;
+            color: #b0b0b0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-section {
+            margin-bottom: 40px;
+        }
+
+        .form-section h3 {
+            color: #ffffff;
+            font-size: 1.4em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ff6b6b;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e0e0e0;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #ff6b6b;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Menu Item Styles */
+        .menu-item {
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-item:hover {
+            border-color: rgba(255,107,107,0.3);
+            transform: translateY(-2px);
+        }
+
+        .menu-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .menu-item-name {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .menu-item-price {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #ff6b6b;
+        }
+
+        .menu-item-description {
+            color: #b0b0b0;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .quantity-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quantity-btn:hover {
+            background: #ff5252;
+            transform: scale(1.1);
+        }
+
+        .quantity-input {
+            width: 80px;
+            text-align: center;
+            padding: 8px;
+            background: #2a2a2a;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: #ffffff;
+        }
+
+        .delivery-option {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .delivery-checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .delivery-checkbox {
+            width: 16px;
+            height: 16px;
+            accent-color: #ff6b6b;
+        }
+
+        .delivery-note {
+            color: #ff6b6b;
+            font-size: 0.8em;
+            margin: 0 0 8px 0;
+            font-style: italic;
+        }
+
+        /* Total Section */
+        .total-section {
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .total-row span:last-child {
+            color: #ff6b6b;
+            font-size: 1.6em;
+        }
+
+        /* Navigation Styles */
+        .nav-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: #111111;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .nav-button {
+            padding: 12px 24px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            background: transparent;
+            color: #ffffff;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .nav-button.primary {
+            background: linear-gradient(135deg, #ff6b6b, #ff5252);
+            border: none;
+            color: white;
+        }
+
+        .nav-button.primary:hover {
+            background: linear-gradient(135deg, #ff5252, #ff4444);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .step-indicator {
+            display: flex;
+            gap: 10px;
+        }
+
+        .step-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .step-dot.active {
+            background: #ff6b6b;
+            transform: scale(1.2);
+        }
+
+        .step-dot.completed {
+            background: #4CAF50;
+        }
+
+        /* Success/Error Messages */
+        .success-message,
+        .error-message {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-weight: 500;
+            display: none;
+        }
+
+        .success-message {
+            background: rgba(76,175,80,0.1);
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+        }
+
+        .error-message {
+            background: rgba(255,107,107,0.1);
+            border: 1px solid #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-section {
+                grid-template-columns: 1fr;
+                padding: 40px 20px;
+                text-align: center;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5em;
+            }
+
+            .form-container {
+                padding: 40px 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-controls {
+                padding: 15px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-content">
+            <div class="page-container">
+                <!-- Page 1: Landing Page -->
+                <div class="page active" id="page1">
+                    <div class="hero-section">
+                        <div class="hero-content">
+                            <h1>Fresh <span class="hero-accent">Nigerian Food</span> Delivered to Campus</h1>
+                            <p>Authentic, made-to-order meals prepared fresh for busy students. Pre-order now for convenient weekly delivery.</p>
+                            <div class="hero-cta">
+                                <button class="cta-button" onclick="nextPage()">
+                                    <span>Preorder Now</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="hero-image">
+                            <div class="product-card">
+                                <div class="product-image">
+                                    <div class="food-image">🍛</div>
+                                </div>
+                                <div class="product-badge">Fresh Daily</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 2: Customer Information -->
+                <div class="page" id="page2">
+                    <div class="form-container">
+                        <div class="form-header">
+                            <h2>Your Information</h2>
+                            <p>Let's start with your contact details</p>
+                        </div>
+                        
+                        <form id="customerForm">
+                            <div class="form-section">
+                                <div class="form-group">
+                                    <label for="name">Full Name *</label>
+                                    <input type="text" id="name" name="name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email Address *</label>
+                                    <input type="email" id="email" name="email" placeholder="your.email@example.com" required>
+                                    <div id="email-error" style="color: #ff6b6b; font-size: 0.85em; margin-top: 5px; display: none;"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone">Phone Number *</label>
+                                    <input type="tel" id="phone" name="phone" placeholder="(555) 123-4567" required>
+                                    <small style="color: #b0b0b0; font-size: 0.85em; margin-top: 5px; display: block;">
+                                        Make sure this is correct so we can contact you for your order
+                                    </small>
+                                    <div id="phone-error" style="color: #ff6b6b; font-size: 0.85em; margin-top: 5px; display: none;"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="studentId">Student ID (Optional)</label>
+                                    <input type="text" id="studentId" name="studentId">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Page 3: Menu Selection -->
+                <div class="page" id="page3">
+                    <div class="form-container">
+                        <div class="form-header">
+                            <h2>Menu Selection</h2>
+                            <p>Choose your favorite Nigerian dishes</p>
+                        </div>
+                        
+                        <form id="menuForm">
+                            <div class="form-section">
+                                <p style="color: #b0b0b0; font-size: 0.9em; margin-bottom: 25px; font-style: italic;">* These prices are subject to change</p>
+                    
+                                <div class="menu-item" data-item="rice-stew">
+                                    <div class="menu-item-header">
+                                        <div class="menu-item-name">White Rice and Stew</div>
+                                        <div class="menu-item-price">$12.00</div>
+                                    </div>
+                                    <div class="menu-item-description">Fluffy white rice served with our signature Nigerian tomato stew, perfectly seasoned and rich in flavor</div>
+                                    <div class="quantity-controls">
+                                        <button type="button" class="quantity-btn" onclick="changeQuantity('rice-stew', -1)">-</button>
+                                        <input type="number" class="quantity-input" id="qty-rice-stew" value="0" min="0" max="10">
+                                        <button type="button" class="quantity-btn" onclick="changeQuantity('rice-stew', 1)">+</button>
+                                    </div>
+                                    <div class="delivery-option">
+                                        <div class="delivery-checkbox-container">
+                                            <input type="checkbox" id="delivery-rice-stew" class="delivery-checkbox" data-item="rice-stew">
+                                            <label for="delivery-rice-stew" style="color: #e0e0e0; font-size: 0.9em; margin: 0; cursor: pointer;">
+                                                Want to add delivery for only $3 more?
+                                            </label>
+                                        </div>
+                                        <p class="delivery-note">
+                                            💡 Your delivery fee only applies once per location. Multiple items to the same location = $3 total.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="menu-item" data-item="rice-ofada">
+                                    <div class="menu-item-header">
+                                        <div class="menu-item-name">White Rice and Ofada Stew</div>
+                                        <div class="menu-item-price">$12.00</div>
+                                    </div>
+                                    <div class="menu-item-description">White rice paired with traditional Ofada stew - a spicy, palm oil-based stew with assorted meats and fish</div>
+                                    <div class="quantity-controls">
+                                        <button type="button" class="quantity-btn" onclick="changeQuantity('rice-ofada', -1)">-</button>
+                                        <input type="number" class="quantity-input" id="qty-rice-ofada" value="0" min="0" max="10">
+                                        <button type="button" class="quantity-btn" onclick="changeQuantity('rice-ofada', 1)">+</button>
+                                    </div>
+                                    <div class="delivery-option">
+                                        <div class="delivery-checkbox-container">
+                                            <input type="checkbox" id="delivery-rice-ofada" class="delivery-checkbox" data-item="rice-ofada">
+                                            <label for="delivery-rice-ofada" style="color: #e0e0e0; font-size: 0.9em; margin: 0; cursor: pointer;">
+                                                Want to add delivery for only $3 more?
+                                            </label>
+                                        </div>
+                                        <p class="delivery-note">
+                                            💡 Your delivery fee only applies once per location. Multiple items to the same location = $3 total.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="menu-item" data-item="rice-stew-plantain">
+                                    <div class="menu-item-header">
+                                        <div class="menu-item-name">White Rice and Stew with Plantains</div>
+                                        <div class="menu-item-price">$12.00</div>
+                                    </div>
+                                    <div class="menu-item-description">White rice with tomato stew, served with sweet fried plantains for the perfect balance of flavors</div>
+                                    <div class="quantity-controls">
+                                        <button type="button" class="quantity-btn" onclick="changeQuantity('rice-stew-plantain', -1)">-</button>
+                                        <input type="number" class="quantity-input" id="qty-rice-stew-plantain" value="0" min="0" max="10">
+                                        <button type="button" class="quantity-btn" onclick="changeQuantity('rice-stew-plantain', 1)">+</button>
+                                    </div>
+                                    <div class="delivery-option">
+                                        <div class="delivery-checkbox-container">
+                                            <input type="checkbox" id="delivery-rice-stew-plantain" class="delivery-checkbox" data-item="rice-stew-plantain">
+                                            <label for="delivery-rice-stew-plantain" style="color: #e0e0e0; font-size: 0.9em; margin: 0; cursor: pointer;">
+                                                Want to add delivery for only $3 more?
+                                            </label>
+                                        </div>
+                                        <p class="delivery-note">
+                                            💡 Your delivery fee only applies once per location. Multiple items to the same location = $3 total.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="menu-item" data-item="rice-ofada-plantain">
+                                    <div class="menu-item-header">
+                                        <div class="menu-item-name">White Rice and Ofada Stew with Plantains</div>
+                                        <div class="menu-item-price">$12.00</div>
+                                    </div>
+                                    <div class="menu-item-description">The ultimate combination - white rice with spicy Ofada stew and sweet fried plantains</div>
+                                    <div class="quantity-controls">
+                                        <button type="button" class="quantity-btn" onclick="changeQuantity('rice-ofada-plantain', -1)">-</button>
+                                        <input type="number" class="quantity-input" id="qty-rice-ofada-plantain" value="0" min="0" max="10">
+                                        <button type="button" class="quantity-btn" onclick="changeQuantity('rice-ofada-plantain', 1)">+</button>
+                                    </div>
+                                    <div class="delivery-option">
+                                        <div class="delivery-checkbox-container">
+                                            <input type="checkbox" id="delivery-rice-ofada-plantain" class="delivery-checkbox" data-item="rice-ofada-plantain">
+                                            <label for="delivery-rice-ofada-plantain" style="color: #e0e0e0; font-size: 0.9em; margin: 0; cursor: pointer;">
+                                                Want to add delivery for only $3 more?
+                                            </label>
+                                        </div>
+                                        <p class="delivery-note">
+                                            💡 Your delivery fee only applies once per location. Multiple items to the same location = $3 total.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="menu-item" data-item="pounded-yam-egusi">
+                                    <div class="menu-item-header">
+                                        <div class="menu-item-name">Pounded Yam and Egusi Soup</div>
+                                        <div class="menu-item-price">$12.00</div>
+                                    </div>
+                                    <div class="menu-item-description">Traditional pounded yam served with Egusi soup (melon seeds and spinach stew) - a Nigerian classic</div>
+                                    <div class="quantity-controls">
+                                        <button type="button" class="quantity-btn" onclick="changeQuantity('pounded-yam-egusi', -1)">-</button>
+                                        <input type="number" class="quantity-input" id="qty-pounded-yam-egusi" value="0" min="0" max="10">
+                                        <button type="button" class="quantity-btn" onclick="changeQuantity('pounded-yam-egusi', 1)">+</button>
+                                    </div>
+                                    <div class="delivery-option">
+                                        <div class="delivery-checkbox-container">
+                                            <input type="checkbox" id="delivery-pounded-yam-egusi" class="delivery-checkbox" data-item="pounded-yam-egusi">
+                                            <label for="delivery-pounded-yam-egusi" style="color: #e0e0e0; font-size: 0.9em; margin: 0; cursor: pointer;">
+                                                Want to add delivery for only $3 more?
+                                            </label>
+                                        </div>
+                                        <p class="delivery-note">
+                                            💡 Your delivery fee only applies once per location. Multiple items to the same location = $3 total.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="menu-item" data-item="rice-stew-beans">
+                                    <div class="menu-item-header">
+                                        <div class="menu-item-name">White Rice, Stew, and Beans</div>
+                                        <div class="menu-item-price">$12.00</div>
+                                    </div>
+                                    <div class="menu-item-description">A hearty combination of white rice, tomato stew, and seasoned beans - nutritious and satisfying</div>
+                                    <div class="quantity-controls">
+                                        <button type="button" class="quantity-btn" onclick="changeQuantity('rice-stew-beans', -1)">-</button>
+                                        <input type="number" class="quantity-input" id="qty-rice-stew-beans" value="0" min="0" max="10">
+                                        <button type="button" class="quantity-btn" onclick="changeQuantity('rice-stew-beans', 1)">+</button>
+                                    </div>
+                                    <div class="delivery-option">
+                                        <div class="delivery-checkbox-container">
+                                            <input type="checkbox" id="delivery-rice-stew-beans" class="delivery-checkbox" data-item="rice-stew-beans">
+                                            <label for="delivery-rice-stew-beans" style="color: #e0e0e0; font-size: 0.9em; margin: 0; cursor: pointer;">
+                                                Want to add delivery for only $3 more?
+                                            </label>
+                                        </div>
+                                        <p class="delivery-note">
+                                            💡 Your delivery fee only applies once per location. Multiple items to the same location = $3 total.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Page 4: Pickup Details -->
+                <div class="page" id="page4">
+                    <div class="form-container">
+                        <div class="form-header">
+                            <h2>Pickup Details</h2>
+                            <p>Select your preferred pickup location</p>
+                        </div>
+                        
+                        <form id="pickupForm">
+                            <div class="form-section">
+                                <div class="form-group">
+                                    <label for="pickupLocation">Pickup Location *</label>
+                                    <select id="pickupLocation" name="pickupLocation" required>
+                                        <option value="">Select location</option>
+                                        <option value="330 High Street">330 High Street</option>
+                                        <option value="Exley Basement (Down the Stairs)">Exley Basement (Down the Stairs)</option>
+                                    </select>
+                                </div>
+                                
+                                <p style="color: #ff6b6b; font-size: 0.9em; margin-top: 25px; padding: 12px; background: rgba(255,107,107,0.1); border-radius: 8px; border-left: 3px solid #ff6b6b;">
+                                    <strong>📅 Pickup Time Note:</strong> Pickup times will be determined for next week and sent out via email.
+                                </p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Page 5: Delivery Details -->
+                <div class="page" id="page5">
+                    <div class="form-container">
+                        <div class="form-header">
+                            <h2>Delivery Details</h2>
+                            <p>Select delivery locations for your items</p>
+                        </div>
+                        
+                        <form id="deliveryForm">
+                            <div class="form-section" id="deliveryItemsSection">
+                                <!-- Delivery items will be populated here by JavaScript -->
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Page 6: Payment & Special Instructions -->
+                <div class="page" id="page6">
+                    <div class="form-container">
+                        <div class="form-header">
+                            <h2>Payment & Special Instructions</h2>
+                            <p>Complete your order with payment details</p>
+                        </div>
+                        
+                        <form id="paymentForm">
+                            <div class="form-section">
+                                <h3>Payment Information</h3>
+                                <p style="color: #ff6b6b; font-size: 0.9em; margin-bottom: 20px; padding: 12px; background: rgba(255,107,107,0.1); border-radius: 8px; border-left: 3px solid #ff6b6b;">
+                                    <strong>⚠️ Demo Mode:</strong> This is a demonstration. No real payment will be processed.
+                                </p>
+                                
+                                <div class="form-group">
+                                    <label for="cardholderName">Cardholder Name *</label>
+                                    <input type="text" id="cardholderName" name="cardholderName" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="billingAddress">Billing Address *</label>
+                                    <input type="text" id="billingAddress" name="billingAddress" required>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="city">City *</label>
+                                        <input type="text" id="city" name="city" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="state">State *</label>
+                                        <input type="text" id="state" name="state" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="zipCode">ZIP Code *</label>
+                                        <input type="text" id="zipCode" name="zipCode" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="card-element">Card Details *</label>
+                                    <div id="card-element" style="padding: 12px; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;">
+                                        <!-- Stripe Elements will be inserted here -->
+                                    </div>
+                                    <div id="card-errors" style="color: #ff6b6b; font-size: 0.85em; margin-top: 5px;"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-section">
+                                <h3>Special Instructions</h3>
+                                <div class="form-group">
+                                    <label for="specialInstructions">Any special requests or dietary restrictions?</label>
+                                    <textarea id="specialInstructions" name="specialInstructions" rows="4" placeholder="Let us know if you have any special requests..."></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="total-section">
+                                <div class="total-row">
+                                    <span>Total</span>
+                                    <span id="total">$0.00</span>
+                                </div>
+                            </div>
+                            
+                            <div class="success-message" id="successMessage">
+                                ✅ Order placed successfully! You'll receive a confirmation email shortly.
+                            </div>
+                            
+                            <div class="error-message" id="errorMessage">
+                                ❌ There was an error processing your order. Please try again.
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Page 7: Thank You -->
+                <div class="page" id="page7">
+                    <div class="form-container" style="text-align: center; padding: 80px 40px;">
+                        <div style="margin-bottom: 40px;">
+                            <div style="font-size: 4em; margin-bottom: 20px;">🎉</div>
+                            <h2 style="font-size: 2.5em; font-weight: 700; margin-bottom: 16px; color: #ffffff;">
+                                Thanks for ordering with us!
+                            </h2>
+                            <p style="font-size: 1.3em; color: #b0b0b0; max-width: 600px; margin: 0 auto; line-height: 1.6;">
+                                We'll send you an email with your delivery details for next week. 
+                                Keep an eye on your inbox for pickup times and locations!
+                            </p>
+                        </div>
+                        
+                        <div style="background: #1a1a1a; padding: 30px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); max-width: 500px; margin: 0 auto;">
+                            <h3 style="color: #ff6b6b; margin-bottom: 16px; font-size: 1.2em;">What's Next?</h3>
+                            <div style="text-align: left; color: #e0e0e0; line-height: 1.8;">
+                                <p>📧 <strong>Email confirmation</strong> - Check your inbox for order details</p>
+                                <p>📅 <strong>Delivery schedule</strong> - We'll announce weekly delivery times</p>
+                                <p>📍 <strong>Pickup location</strong> - Details will be sent via email</p>
+                                <p>🍛 <strong>Fresh preparation</strong> - Your order will be made fresh on delivery day</p>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 40px;">
+                            <button class="nav-button primary" onclick="resetForm()" style="margin-right: 15px;">
+                                🛒 Place Another Order
+                            </button>
+                            <button class="nav-button" onclick="viewOrders()" style="background: #2a2a2a; border: 1px solid rgba(255,255,255,0.2);">
+                                📋 View All Orders
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Controls -->
+            <div class="nav-controls">
+                <button class="nav-button" id="prevBtn" onclick="prevPage()" style="display: none;">← Back</button>
+                <div class="step-indicator">
+                    <div class="step-dot active" data-step="1"></div>
+                    <div class="step-dot" data-step="2"></div>
+                    <div class="step-dot" data-step="3"></div>
+                    <div class="step-dot" data-step="4"></div>
+                    <div class="step-dot" data-step="5"></div>
+                    <div class="step-dot" data-step="6"></div>
+                    <div class="step-dot" data-step="7"></div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="nav-button" onclick="viewOrders()" style="background: #2a2a2a; border: 1px solid rgba(255,255,255,0.2);">📋 View Orders</button>
+                    <button class="nav-button primary" id="nextBtn" onclick="nextPage()">Next →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Stripe configuration
+        const stripe = Stripe('pk_test_51234567890abcdef'); // Replace with your publishable key
+        const elements = stripe.elements();
+        
+        // Create card element
+        const cardElement = elements.create('card', {
+            style: {
+                base: {
+                    fontSize: '16px',
+                    color: '#ffffff',
+                    '::placeholder': {
+                        color: '#b0b0b0',
+                    },
+                },
+                invalid: {
+                    color: '#ff6b6b',
+                },
+            },
+        });
+
+        // Menu items with prices
+        const menuItems = {
+            'rice-stew': 12.00,
+            'rice-ofada': 12.00,
+            'rice-stew-plantain': 12.00,
+            'rice-ofada-plantain': 12.00,
+            'pounded-yam-egusi': 12.00,
+            'rice-stew-beans': 12.00
+        };
+
+        // Multi-step navigation
+        let currentPage = 1;
+        const totalPages = 7;
+
+        // Update total calculation
+        function updateTotal() {
+            let total = 0;
+            
+            // Calculate menu items total
+            Object.keys(menuItems).forEach(itemId => {
+                const quantity = parseInt(document.getElementById(`qty-${itemId}`).value) || 0;
+                total += quantity * menuItems[itemId];
+            });
+
+            // Calculate delivery fees based on selected delivery locations
+            const deliveryItems = document.querySelectorAll('#deliveryItemsSection .delivery-location-select');
+            const uniqueLocations = new Set();
+            deliveryItems.forEach(select => {
+                if (select.value) {
+                    uniqueLocations.add(select.value);
+                }
+            });
+            total += uniqueLocations.size * 3.00;
+
+            document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+        }
+
+        // Populate delivery items section
+        function populateDeliveryItems() {
+            const deliverySection = document.getElementById('deliveryItemsSection');
+            deliverySection.innerHTML = '';
+            
+            let hasDeliveryItems = false;
+            
+            Object.keys(menuItems).forEach(itemId => {
+                const quantity = parseInt(document.getElementById(`qty-${itemId}`).value) || 0;
+                const deliveryCheckbox = document.getElementById(`delivery-${itemId}`);
+                
+                if (quantity > 0 && deliveryCheckbox && deliveryCheckbox.checked) {
+                    hasDeliveryItems = true;
+                    const itemName = document.querySelector(`[data-item="${itemId}"] .menu-item-name`).textContent;
+                    
+                    const deliveryItem = document.createElement('div');
+                    deliveryItem.className = 'form-group';
+                    deliveryItem.innerHTML = `
+                        <label for="delivery-location-${itemId}">Delivery location for ${itemName} (Qty: ${quantity}) *</label>
+                        <select id="delivery-location-${itemId}" class="delivery-location-select" data-item="${itemId}" required>
+                            <option value="">Select delivery location</option>
+                            <option value="330 High Street">330 High Street</option>
+                            <option value="Exley Basement (Down the Stairs)">Exley Basement (Down the Stairs)</option>
+                        </select>
+                        <p style="color: #ff6b6b; font-size: 0.8em; margin: 5px 0 0 0; font-style: italic;">
+                            💡 $3 delivery fee per location (not per item)
+                        </p>
+                    `;
+                    deliverySection.appendChild(deliveryItem);
+                }
+            });
+            
+            if (!hasDeliveryItems) {
+                deliverySection.innerHTML = '<p style="color: #b0b0b0; text-align: center; padding: 40px;">No delivery items selected. You can skip this page.</p>';
+            }
+            
+            // Add event listeners for delivery location selects
+            const selects = deliverySection.querySelectorAll('.delivery-location-select');
+            selects.forEach(select => {
+                select.addEventListener('change', updateTotal);
+            });
+        }
+
+        // Quantity control functions
+        function changeQuantity(itemId, change) {
+            const input = document.getElementById(`qty-${itemId}`);
+            const currentValue = parseInt(input.value) || 0;
+            const newValue = Math.max(0, Math.min(10, currentValue + change));
+            input.value = newValue;
+            updateTotal();
+        }
+
+        // Show specific page
+        function showPage(pageNumber) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+
+            // Show current page
+            const currentPageEl = document.getElementById(`page${pageNumber}`);
+            currentPageEl.classList.add('active');
+
+            // Populate delivery items when showing delivery page
+            if (pageNumber === 5) {
+                populateDeliveryItems();
+            }
+
+            // Update step indicators
+            document.querySelectorAll('.step-dot').forEach((dot, index) => {
+                dot.classList.remove('active', 'completed');
+                if (index + 1 < pageNumber) {
+                    dot.classList.add('completed');
+                } else if (index + 1 === pageNumber) {
+                    dot.classList.add('active');
+                }
+            });
+
+            // Update navigation buttons
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            if (pageNumber === 1) {
+                prevBtn.style.display = 'none';
+                nextBtn.textContent = 'Start Order →';
+            } else if (pageNumber === 6) {
+                prevBtn.style.display = 'block';
+                nextBtn.textContent = '💳 Complete Order';
+            } else if (pageNumber === 7) {
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'block';
+                nextBtn.textContent = 'Next →';
+            }
+
+            // Initialize Stripe Elements when on payment page
+            if (pageNumber === 6) {
+                initializeStripeElements();
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages) {
+                // Special handling for page 5 (delivery details)
+                if (currentPage === 4) {
+                    // Check if there are any delivery items
+                    let hasDeliveryItems = false;
+                    Object.keys(menuItems).forEach(itemId => {
+                        const quantity = parseInt(document.getElementById(`qty-${itemId}`).value) || 0;
+                        const deliveryCheckbox = document.getElementById(`delivery-${itemId}`);
+                        if (quantity > 0 && deliveryCheckbox && deliveryCheckbox.checked) {
+                            hasDeliveryItems = true;
+                        }
+                    });
+                    
+                    // Skip delivery page if no delivery items
+                    if (!hasDeliveryItems) {
+                        currentPage += 2; // Skip to page 6
+                        showPage(currentPage);
+                        return;
+                    }
+                }
+
+                // Validate current page before proceeding
+                if (validateCurrentPage()) {
+                    currentPage++;
+                    showPage(currentPage);
+                }
+            }
+
+            // Handle form submission on payment page
+            if (currentPage === 6 && document.getElementById('nextBtn').textContent === '💳 Complete Order') {
+                submitOrder();
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                // Special handling when going back from page 6 to potentially skip page 5
+                if (currentPage === 6) {
+                    let hasDeliveryItems = false;
+                    Object.keys(menuItems).forEach(itemId => {
+                        const quantity = parseInt(document.getElementById(`qty-${itemId}`).value) || 0;
+                        const deliveryCheckbox = document.getElementById(`delivery-${itemId}`);
+                        if (quantity > 0 && deliveryCheckbox && deliveryCheckbox.checked) {
+                            hasDeliveryItems = true;
+                        }
+                    });
+                    
+                    // Skip delivery page if no delivery items
+                    if (!hasDeliveryItems) {
+                        currentPage -= 2; // Go back to page 4
+                        showPage(currentPage);
+                        return;
+                    }
+                }
+
+                currentPage--;
+                showPage(currentPage);
+            }
+        }
+
+        // Form validation
+        function validateCurrentPage() {
+            const currentPageEl = document.getElementById(`page${currentPage}`);
+            const requiredFields = currentPageEl.querySelectorAll('input[required], select[required]');
+            
+            for (let field of requiredFields) {
+                if (!field.value.trim()) {
+                    field.focus();
+                    field.style.borderColor = '#ff6b6b';
+                    setTimeout(() => {
+                        field.style.borderColor = 'rgba(255,255,255,0.1)';
+                    }, 2000);
+                    return false;
+                }
+                
+                // Special validation for email
+                if (field.id === 'email') {
+                    if (!validateEmail(field.value)) {
+                        field.focus();
+                        return false;
+                    }
+                }
+                
+                // Special validation for phone number
+                if (field.id === 'phone') {
+                    if (!validatePhoneNumber(field.value)) {
+                        field.focus();
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        // Email validation
+        function validateEmail(email) {
+            const emailError = document.getElementById('email-error');
+            const emailInput = document.getElementById('email');
+            
+            const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+            
+            if (email && emailRegex.test(email)) {
+                emailError.style.display = 'none';
+                emailInput.style.borderColor = 'rgba(255,255,255,0.1)';
+                return true;
+            } else if (email && email.length > 0) {
+                emailError.textContent = 'Please enter a valid email address';
+                emailError.style.display = 'block';
+                emailInput.style.borderColor = '#ff6b6b';
+                return false;
+            } else {
+                emailError.style.display = 'none';
+                emailInput.style.borderColor = 'rgba(255,255,255,0.1)';
+                return false;
+            }
+        }
+
+        // Enhanced phone number validation
+        function validatePhoneNumber(phone) {
+            const phoneError = document.getElementById('phone-error');
+            const phoneInput = document.getElementById('phone');
+            
+            const digitsOnly = phone.replace(/\D/g, '');
+            
+            if (digitsOnly.length === 10) {
+                // Check for all same digits
+                if (digitsOnly === digitsOnly[0].repeat(10)) {
+                    phoneError.textContent = 'Please enter a valid phone number';
+                    phoneError.style.display = 'block';
+                    phoneInput.style.borderColor = '#ff6b6b';
+                    return false;
+                }
+                
+                // Check for patterns with too many repeated digits
+                const digitCounts = {};
+                for (let digit of digitsOnly) {
+                    digitCounts[digit] = (digitCounts[digit] || 0) + 1;
+                }
+                const maxRepeated = Math.max(...Object.values(digitCounts));
+                if (maxRepeated >= 7) {
+                    phoneError.textContent = 'Please enter a valid phone number';
+                    phoneError.style.display = 'block';
+                    phoneInput.style.borderColor = '#ff6b6b';
+                    return false;
+                }
+                
+                // Check for sequential numbers
+                let isSequential = true;
+                let isReverseSequential = true;
+                for (let i = 1; i < digitsOnly.length; i++) {
+                    if (parseInt(digitsOnly[i]) !== parseInt(digitsOnly[i-1]) + 1) {
+                        isSequential = false;
+                    }
+                    if (parseInt(digitsOnly[i]) !== parseInt(digitsOnly[i-1]) - 1) {
+                        isReverseSequential = false;
+                    }
+                }
+                
+                if (isSequential || isReverseSequential) {
+                    phoneError.textContent = 'Please enter a valid phone number';
+                    phoneError.style.display = 'block';
+                    phoneInput.style.borderColor = '#ff6b6b';
+                    return false;
+                }
+                
+                phoneError.style.display = 'none';
+                phoneInput.style.borderColor = 'rgba(255,255,255,0.1)';
+                return true;
+            } else if (digitsOnly.length > 0) {
+                phoneError.textContent = 'Please enter a valid 10-digit phone number';
+                phoneError.style.display = 'block';
+                phoneInput.style.borderColor = '#ff6b6b';
+                return false;
+            } else {
+                phoneError.style.display = 'none';
+                phoneInput.style.borderColor = 'rgba(255,255,255,0.1)';
+                return false;
+            }
+        }
+
+        // Initialize Stripe Elements when page 6 is shown
+        function initializeStripeElements() {
+            if (currentPage === 6) {
+                cardElement.mount('#card-element');
+                
+                cardElement.on('change', function(event) {
+                    const displayError = document.getElementById('card-errors');
+                    if (event.error) {
+                        displayError.textContent = event.error.message;
+                    } else {
+                        displayError.textContent = '';
+                    }
+                });
+            }
+        }
+
+        async function submitOrder() {
+            const totalAmount = parseFloat(document.getElementById('total').textContent.replace('$', ''));
+            
+            if (totalAmount <= 0) {
+                alert('Please select at least one item');
+                return;
+            }
+
+            // Show loading state
+            const nextBtn = document.getElementById('nextBtn');
+            const originalText = nextBtn.textContent;
+            nextBtn.textContent = 'Processing...';
+            nextBtn.disabled = true;
+
+            try {
+                // Simulate payment processing (since this is demo mode)
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                // Collect form data
+                const formData = {
+                    customer: {
+                        name: document.getElementById('name').value,
+                        email: document.getElementById('email').value,
+                        phone: document.getElementById('phone').value,
+                        studentId: document.getElementById('studentId').value
+                    },
+                    pickup: {
+                        location: document.getElementById('pickupLocation').value
+                    },
+                    delivery: {
+                        items: [],
+                        totalFee: 0
+                    },
+                    items: [],
+                    specialInstructions: document.getElementById('specialInstructions').value,
+                    total: totalAmount
+                };
+
+                // Add selected items to order
+                Object.keys(menuItems).forEach(itemId => {
+                    const quantity = parseInt(document.getElementById(`qty-${itemId}`).value) || 0;
+                    if (quantity > 0) {
+                        const itemName = document.querySelector(`[data-item="${itemId}"] .menu-item-name`).textContent;
+                        const deliveryCheckbox = document.getElementById(`delivery-${itemId}`);
+                        const deliveryLocationSelect = document.querySelector(`#deliveryItemsSection [data-item="${itemId}"]`);
+                        
+                        formData.items.push({
+                            id: itemId,
+                            name: itemName,
+                            price: menuItems[itemId],
+                            quantity: quantity,
+                            delivery: deliveryCheckbox && deliveryCheckbox.checked,
+                            deliveryLocation: deliveryLocationSelect && deliveryLocationSelect.value ? deliveryLocationSelect.value : null
+                        });
+                        
+                        // Add to delivery items if delivery is selected
+                        if (deliveryCheckbox && deliveryCheckbox.checked && deliveryLocationSelect && deliveryLocationSelect.value) {
+                            formData.delivery.items.push({
+                                itemId: itemId,
+                                itemName: itemName,
+                                quantity: quantity,
+                                location: deliveryLocationSelect.value
+                            });
+                        }
+                    }
+                });
+
+                // Calculate delivery fees per location
+                const deliveryLocations = new Set();
+                formData.delivery.items.forEach(item => {
+                    deliveryLocations.add(item.location);
+                });
+                formData.delivery.totalFee = deliveryLocations.size * 3.00;
+
+                // Store order in localStorage
+                const orders = JSON.parse(localStorage.getItem('preorders') || '[]');
+                const orderId = 'ORDER_' + Date.now();
+                formData.orderId = orderId;
+                formData.timestamp = new Date().toISOString();
+                orders.push(formData);
+                localStorage.setItem('preorders', JSON.stringify(orders));
+
+                // Go to thank you page
+                currentPage = 7;
+                showPage(7);
+                document.getElementById('successMessage').style.display = 'none';
+                document.getElementById('errorMessage').style.display = 'none';
+
+            } catch (error) {
+                console.error('Order submission failed:', error);
+                document.getElementById('errorMessage').textContent = `❌ Order failed: ${error.message}`;
+                document.getElementById('errorMessage').style.display = 'block';
+            } finally {
+                // Reset button state
+                nextBtn.textContent = originalText;
+                nextBtn.disabled = false;
+            }
+        }
+
+        // View orders function
+        function viewOrders() {
+            const orders = JSON.parse(localStorage.getItem('preorders') || '[]');
+            
+            if (orders.length === 0) {
+                alert('No orders found');
+                return;
+            }
+
+            let ordersHTML = `
+                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px;">
+                    <div style="background: #1a1a1a; border-radius: 16px; padding: 30px; max-width: 800px; max-height: 80vh; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h2 style="color: #fff; margin: 0;">Order History (${orders.length} orders)</h2>
+                            <button onclick="closeOrders()" style="background: #ff6b6b; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer;">Close</button>
+                        </div>
+                        <div style="display: grid; gap: 20px;">
+            `;
+
+            orders.forEach((order, index) => {
+                ordersHTML += `
+                    <div style="background: #2a2a2a; padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                            <div>
+                                <h3 style="color: #ff6b6b; margin: 0 0 8px 0; font-size: 1.1em;">Order #${order.orderId || (index + 1)}</h3>
+                                <p style="color: #b0b0b0; margin: 0; font-size: 0.9em;">${new Date(order.timestamp).toLocaleString()}</p>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="color: #fff; font-size: 1.2em; font-weight: 600;">$${order.total.toFixed(2)}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px;">
+                            <div>
+                                <h4 style="color: #fff; margin: 0 0 8px 0; font-size: 0.9em;">Customer Info</h4>
+                                <p style="color: #e0e0e0; margin: 2px 0; font-size: 0.9em;"><strong>Name:</strong> ${order.customer.name}</p>
+                                <p style="color: #e0e0e0; margin: 2px 0; font-size: 0.9em;"><strong>Email:</strong> ${order.customer.email}</p>
+                                <p style="color: #e0e0e0; margin: 2px 0; font-size: 0.9em;"><strong>Phone:</strong> ${order.customer.phone}</p>
+                                ${order.customer.studentId ? `<p style="color: #e0e0e0; margin: 2px 0; font-size: 0.9em;"><strong>Student ID:</strong> ${order.customer.studentId}</p>` : ''}
+                            </div>
+                            <div>
+                                <h4 style="color: #fff; margin: 0 0 8px 0; font-size: 0.9em;">Pickup Details</h4>
+                                <p style="color: #e0e0e0; margin: 2px 0; font-size: 0.9em;"><strong>Location:</strong> ${order.pickup.location}</p>
+                                ${order.delivery.totalFee > 0 ? `<p style="color: #ff6b6b; margin: 2px 0; font-size: 0.9em;"><strong>Delivery Fee:</strong> $${order.delivery.totalFee.toFixed(2)}</p>` : ''}
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <h4 style="color: #fff; margin: 0 0 8px 0; font-size: 0.9em;">Order Items</h4>
+                            <div style="display: grid; gap: 8px;">
+                `;
+
+                order.items.forEach(item => {
+                    ordersHTML += `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #1a1a1a; border-radius: 6px;">
+                            <div>
+                                <div style="color: #e0e0e0; font-size: 0.9em;">${item.name}</div>
+                                ${item.delivery ? `<div style="color: #ff6b6b; font-size: 0.8em;">Delivery to: ${item.deliveryLocation}</div>` : ''}
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="color: #fff; font-size: 0.9em;">Qty: ${item.quantity} × $${item.price.toFixed(2)}</div>
+                                <div style="color: #ff6b6b; font-size: 0.9em; font-weight: 600;">$${(item.quantity * item.price).toFixed(2)}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                ordersHTML += `
+                            </div>
+                        </div>
+                        
+                        ${order.specialInstructions ? `
+                            <div style="margin-bottom: 15px;">
+                                <h4 style="color: #fff; margin: 0 0 8px 0; font-size: 0.9em;">Special Instructions</h4>
+                                <p style="color: #e0e0e0; font-size: 0.9em; margin: 0; padding: 8px; background: #1a1a1a; border-radius: 6px;">${order.specialInstructions}</p>
+                            </div>
+                        ` : ''}
+                        
+                        <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="color: #b0b0b0; font-size: 0.9em;">Status: Complete</div>
+                                <div style="color: #fff; font-size: 1.1em; font-weight: 600;">Total: $${order.total.toFixed(2)}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            ordersHTML += `
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', ordersHTML);
+        }
+
+        function closeOrders() {
+            const ordersModal = document.querySelector('[style*="position: fixed"]');
+            if (ordersModal) {
+                ordersModal.remove();
+            }
+        }
+
+        // Reset form and go back to first page
+        function resetForm() {
+            // Reset all forms
+            document.querySelectorAll('form').forEach(form => form.reset());
+            Object.keys(menuItems).forEach(itemId => {
+                document.getElementById(`qty-${itemId}`).value = 0;
+            });
+            updateTotal();
+            
+            // Go back to first page
+            currentPage = 1;
+            showPage(1);
+            
+            // Reset navigation button display
+            const nextBtn = document.getElementById('nextBtn');
+            nextBtn.style.display = 'inline-block';
+        }
+
+        // Add event listeners to quantity inputs
+        Object.keys(menuItems).forEach(itemId => {
+            const input = document.getElementById(`qty-${itemId}`);
+            input.addEventListener('input', updateTotal);
+        });
+
+        // Email validation on input
+        document.getElementById('email').addEventListener('input', function(e) {
+            validateEmail(e.target.value);
+        });
+
+        // Phone number formatting and validation
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            // Format as (XXX) XXX-XXXX
+            if (value.length >= 6) {
+                value = `(${value.substring(0, 3)}) ${value.substring(3, 6)}-${value.substring(6, 10)}`;
+            } else if (value.length >= 3) {
+                value = `(${value.substring(0, 3)}) ${value.substring(3)}`;
+            } else if (value.length > 0) {
+                value = `(${value}`;
+            }
+            
+            e.target.value = value;
+            validatePhoneNumber(value);
+        });
+
+        // Initialize the form
+        showPage(1);
+    </script>
+</body>
+</html>
+
