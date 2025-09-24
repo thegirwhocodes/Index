@@ -475,6 +475,7 @@
         @media (max-width: 768px) {
             body {
                 padding: 10px;
+                padding-top: 20px;
             }
 
             .container {
@@ -515,7 +516,7 @@
             }
 
             .form-container {
-                padding: 30px 15px;
+                padding: 40px 15px 30px 15px;
                 margin: 10px;
                 border-radius: 15px;
             }
@@ -603,7 +604,7 @@
 
             .header {
                 margin: 10px;
-                padding: 25px 15px;
+                padding: 35px 15px 25px 15px;
                 border-radius: 15px;
             }
 
@@ -1311,7 +1312,7 @@
                 }
             }
 
-            // Handle form submission on payment page
+            // Handle form submission ONLY when Complete Order button is clicked
             if (currentPage === 6 && document.getElementById('nextBtn').textContent === '💳 Complete Order') {
                 // Double-check payment method is selected before submitting
                 const paymentMethod = document.getElementById('paymentMethod');
@@ -1323,6 +1324,12 @@
                 }
                 submitOrder();
                 return false; // Prevent default form behavior
+            }
+            
+            // Prevent any other form submission attempts
+            if (currentPage === 6) {
+                console.log('Blocking form submission - only Complete Order button allowed');
+                return false;
             }
         }
 
@@ -1980,6 +1987,22 @@
                 }
             });
         }
+
+        // Prevent all form submissions except through Complete Order button
+        document.addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('Form submission blocked - use Complete Order button');
+            return false;
+        });
+
+        // Prevent Enter key from submitting forms
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && currentPage === 6) {
+                e.preventDefault();
+                console.log('Enter key blocked on payment page - use Complete Order button');
+                return false;
+            }
+        });
 
         // Initialize the form
         showPage(1);
