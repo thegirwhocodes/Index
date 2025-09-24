@@ -475,7 +475,7 @@
         @media (max-width: 768px) {
             body {
                 padding: 10px;
-                padding-top: 20px;
+                padding-top: 40px;
             }
 
             .container {
@@ -516,7 +516,7 @@
             }
 
             .form-container {
-                padding: 40px 15px 30px 15px;
+                padding: 50px 15px 30px 15px;
                 margin: 10px;
                 border-radius: 15px;
             }
@@ -604,7 +604,7 @@
 
             .header {
                 margin: 10px;
-                padding: 35px 15px 25px 15px;
+                padding: 45px 15px 25px 15px;
                 border-radius: 15px;
             }
 
@@ -1821,10 +1821,25 @@
                 value = `(${value.substring(0, 3)}) ${value.substring(3)}`;
             } else if (value.length > 0) {
                 value = `(${value}`;
+            } else {
+                value = ''; // Allow complete clearing
             }
             
             e.target.value = value;
             validatePhoneNumber(value);
+        });
+
+        // Allow backspace to work properly
+        document.getElementById('phone').addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace') {
+                // Allow backspace to work naturally
+                setTimeout(() => {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length === 0) {
+                        e.target.value = '';
+                    }
+                }, 0);
+            }
         });
 
         // Admin access functionality
