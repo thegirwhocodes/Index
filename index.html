@@ -36,8 +36,6 @@
 
         .main-content {
             flex: 1;
-            height: 0; /* Equivalent to Android's layout_height="0dp" */
-            min-height: 0; /* Important for flexbox to work properly */
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -46,12 +44,9 @@
         .page-container {
             position: relative;
             flex: 1;
-            height: 0; /* Equivalent to Android's layout_height="0dp" */
-            min-height: 0; /* Important for flexbox to work properly */
             overflow-y: auto;
             overflow-x: hidden;
-            padding-bottom: 120px;
-            margin-bottom: 80px;
+            padding-bottom: 100px;
         }
 
         .page {
@@ -451,14 +446,10 @@
             background: #111111;
             border-top: 1px solid rgba(255,255,255,0.1);
             min-height: 80px;
-            position: fixed;
+            position: sticky;
             bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
+            z-index: 100;
             flex-shrink: 0;
-            max-width: 1200px;
-            margin: 0 auto;
         }
 
         .nav-button {
@@ -641,17 +632,14 @@
 
             .nav-controls {
                 padding: 20px 15px;
-                margin: 0;
-                border-radius: 0;
+                margin: 10px;
+                border-radius: 10px;
                 flex-direction: column;
                 gap: 20px;
-                position: fixed;
+                position: sticky;
                 bottom: 0;
-                left: 0;
-                right: 0;
-                z-index: 1000;
+                z-index: 100;
                 flex-shrink: 0;
-                max-width: none;
             }
 
             .nav-button {
@@ -2284,7 +2272,7 @@
                 // Add Android class to body for additional CSS targeting
                 body.classList.add('android-device');
                 
-                // Apply Android layout_weight pattern
+                // Apply Android layout_weight pattern ONLY for Android devices
                 if (container) {
                     container.style.height = '100vh';
                     container.style.minHeight = '100vh';
@@ -2323,6 +2311,9 @@
                 // Ensure body doesn't have overflow issues
                 body.style.overflowX = 'hidden';
                 body.style.position = 'relative';
+            } else {
+                // For non-Android devices (like iPhone), ensure original layout is preserved
+                body.classList.remove('android-device');
             }
         }
 
