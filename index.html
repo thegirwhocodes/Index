@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Campus Food Preorder Form</title>
     <style>
         * {
@@ -31,7 +31,6 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            position: relative;
         }
 
         .main-content {
@@ -44,9 +43,7 @@
         .page-container {
             position: relative;
             flex: 1;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding-bottom: 100px;
+            overflow: hidden;
         }
 
         .page {
@@ -60,59 +57,11 @@
             transition: opacity 0.6s ease-in-out, visibility 0.6s ease-in-out;
             overflow-y: auto;
             overflow-x: hidden;
-            scrollbar-width: thin;
-            scrollbar-color: #ff6b6b #2a2a2a;
-        }
-
-        .page::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .page::-webkit-scrollbar-track {
-            background: #2a2a2a;
-            border-radius: 4px;
-        }
-
-        .page::-webkit-scrollbar-thumb {
-            background: #ff6b6b;
-            border-radius: 4px;
-        }
-
-        .page::-webkit-scrollbar-thumb:hover {
-            background: #ff5252;
         }
 
         .page.active {
             opacity: 1;
             visibility: visible;
-        }
-
-        /* Scroll indicator */
-        .scroll-indicator {
-            position: fixed;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255, 107, 107, 0.8);
-            color: white;
-            padding: 10px;
-            border-radius: 50%;
-            font-size: 12px;
-            z-index: 50;
-            opacity: 0.7;
-            transition: opacity 0.3s ease;
-            cursor: pointer;
-            display: none;
-        }
-
-        .scroll-indicator:hover {
-            opacity: 1;
-        }
-
-        .scroll-indicator::before {
-            content: "↑↓";
-            display: block;
-            text-align: center;
         }
 
         /* Header Styles */
@@ -442,18 +391,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 25px 40px;
+            padding: 20px 40px;
             background: #111111;
             border-top: 1px solid rgba(255,255,255,0.1);
-            min-height: 80px;
-            position: sticky;
-            bottom: 0;
-            z-index: 100;
-            flex-shrink: 0;
         }
 
         .nav-button {
-            padding: 16px 28px;
+            padding: 12px 24px;
             border: 1px solid rgba(255,255,255,0.2);
             border-radius: 8px;
             background: transparent;
@@ -462,11 +406,6 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
-            min-height: 48px;
-            min-width: 120px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .nav-button:hover {
@@ -631,24 +570,18 @@
             }
 
             .nav-controls {
-                padding: 20px 15px;
+                padding: 15px;
                 margin: 10px;
                 border-radius: 10px;
                 flex-direction: column;
-                gap: 20px;
-                position: sticky;
-                bottom: 0;
-                z-index: 100;
-                flex-shrink: 0;
+                gap: 15px;
             }
 
             .nav-button {
-                padding: 18px 30px;
+                padding: 12px 25px;
                 font-size: 1em;
                 width: 100%;
                 text-align: center;
-                min-height: 52px;
-                min-width: 140px;
             }
 
             .step-indicator {
@@ -733,77 +666,7 @@
             }
         }
 
-        /* Landscape phone orientation */
-        @media (max-width: 768px) and (orientation: landscape) {
-            .hero-section {
-                padding: 20px 15px;
-            }
-
-            .hero-content h1 {
-                font-size: 2em;
-            }
-
-            .form-container {
-                padding: 20px 15px;
-            }
-        }
-
-        /* Android-specific optimizations */
-        @media screen and (-webkit-min-device-pixel-ratio: 0) {
-            .nav-button {
-                padding: 18px 32px;
-                min-height: 50px;
-                min-width: 130px;
-                -webkit-tap-highlight-color: rgba(255, 107, 107, 0.3);
-                -webkit-touch-callout: none;
-                -webkit-user-select: none;
-                user-select: none;
-            }
-            
-            .nav-controls {
-                padding: 25px 20px;
-                gap: 25px;
-                position: fixed !important;
-                bottom: 0 !important;
-                left: 0 !important;
-                right: 0 !important;
-                z-index: 1000 !important;
-                width: 100% !important;
-                max-width: none !important;
-            }
-            
-            .nav-button.primary {
-                -webkit-tap-highlight-color: rgba(255, 82, 82, 0.4);
-            }
-            
-            .page-container {
-                margin-bottom: 100px !important;
-                padding-bottom: 20px !important;
-            }
-        }
-
-        /* Additional Android touch optimizations */
-        @media (max-width: 768px) {
-            .nav-button {
-                -webkit-tap-highlight-color: rgba(255, 107, 107, 0.3);
-                -webkit-touch-callout: none;
-                -webkit-user-select: none;
-                user-select: none;
-                touch-action: manipulation;
-            }
-            
-            .nav-button.primary {
-                -webkit-tap-highlight-color: rgba(255, 82, 82, 0.4);
-            }
-            
-            .scroll-indicator {
-                right: 10px;
-                padding: 8px;
-                font-size: 10px;
-            }
-        }
-
-        /* Android device specific styles - inspired by Android layout_weight pattern */
+        /* Android-specific styles - only applies when .android-device class is present */
         .android-device .container {
             height: 100vh;
             min-height: 100vh;
@@ -841,7 +704,6 @@
             height: auto !important;
             min-height: 80px !important;
             flex-shrink: 0 !important;
-            /* Similar to Android's fixed navigation bar */
             background: #111111 !important;
             border-top: 1px solid rgba(255,255,255,0.1) !important;
         }
@@ -849,6 +711,30 @@
         .android-device .nav-button {
             min-height: 48px !important;
             padding: 12px 20px !important;
+            -webkit-tap-highlight-color: rgba(255, 107, 107, 0.3);
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .android-device .nav-button.primary {
+            -webkit-tap-highlight-color: rgba(255, 82, 82, 0.4);
+        }
+
+        /* Landscape phone orientation */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .hero-section {
+                padding: 20px 15px;
+            }
+
+            .hero-content h1 {
+                font-size: 2em;
+            }
+
+            .form-container {
+                padding: 20px 15px;
+            }
         }
     </style>
 </head>
@@ -1279,13 +1165,10 @@
                     <div class="step-dot" data-step="6"></div>
                     <div class="step-dot" data-step="7"></div>
                 </div>
-                <div style="display: flex; gap: 15px; align-items: center;">
+                <div style="display: flex; gap: 10px;">
                     <button class="nav-button primary" id="nextBtn" onclick="nextPage()">Next →</button>
                 </div>
             </div>
-            
-            <!-- Scroll Indicator -->
-            <div class="scroll-indicator" id="scrollIndicator" onclick="scrollToTop()" title="Scroll with arrow keys or click to scroll to top"></div>
         </div>
     </div>
 
@@ -2198,63 +2081,14 @@
             return false;
         });
 
-        // Prevent Enter key from submitting forms and add arrow key navigation
+        // Prevent Enter key from submitting forms
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && currentPage === 6) {
                 e.preventDefault();
                 console.log('Enter key blocked on payment page - use Complete Order button');
                 return false;
             }
-            
-            // Arrow key navigation
-            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-                e.preventDefault();
-                const currentPageEl = document.getElementById(`page${currentPage}`);
-                const scrollAmount = 50;
-                
-                if (e.key === 'ArrowUp') {
-                    currentPageEl.scrollBy(0, -scrollAmount);
-                } else {
-                    currentPageEl.scrollBy(0, scrollAmount);
-                }
-            }
-            
-            // Page navigation with arrow keys (left/right)
-            if (e.key === 'ArrowLeft' && currentPage > 1) {
-                e.preventDefault();
-                prevPage();
-            }
-            
-            if (e.key === 'ArrowRight' && currentPage < totalPages) {
-                e.preventDefault();
-                nextPage();
-            }
         });
-
-        // Scroll functionality
-        function scrollToTop() {
-            const currentPageEl = document.getElementById(`page${currentPage}`);
-            currentPageEl.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // Show/hide scroll indicator based on scroll position
-        function updateScrollIndicator() {
-            const currentPageEl = document.getElementById(`page${currentPage}`);
-            const scrollIndicator = document.getElementById('scrollIndicator');
-            
-            if (currentPageEl.scrollTop > 100) {
-                scrollIndicator.style.display = 'block';
-            } else {
-                scrollIndicator.style.display = 'none';
-            }
-        }
-
-        // Add scroll event listeners to pages
-        function addScrollListeners() {
-            document.querySelectorAll('.page').forEach(page => {
-                page.addEventListener('scroll', updateScrollIndicator);
-            });
-        }
 
         // Android detection and layout fix
         function isAndroid() {
@@ -2263,16 +2097,17 @@
 
         function fixAndroidLayout() {
             if (isAndroid()) {
-                const navControls = document.querySelector('.nav-controls');
-                const pageContainer = document.querySelector('.page-container');
-                const mainContent = document.querySelector('.main-content');
-                const container = document.querySelector('.container');
                 const body = document.body;
                 
-                // Add Android class to body for additional CSS targeting
+                // Add Android class to body for CSS targeting
                 body.classList.add('android-device');
                 
-                // Apply Android layout_weight pattern ONLY for Android devices
+                // Apply Android layout_weight pattern via JavaScript as backup
+                const container = document.querySelector('.container');
+                const mainContent = document.querySelector('.main-content');
+                const pageContainer = document.querySelector('.page-container');
+                const navControls = document.querySelector('.nav-controls');
+                
                 if (container) {
                     container.style.height = '100vh';
                     container.style.minHeight = '100vh';
@@ -2312,14 +2147,13 @@
                 body.style.overflowX = 'hidden';
                 body.style.position = 'relative';
             } else {
-                // For non-Android devices (like iPhone), ensure original layout is preserved
-                body.classList.remove('android-device');
+                // For non-Android devices, ensure Android class is removed
+                document.body.classList.remove('android-device');
             }
         }
 
         // Initialize the form
         showPage(1);
-        addScrollListeners();
         fixAndroidLayout();
         
         // Re-apply Android fix on window resize
@@ -2327,4 +2161,3 @@
     </script>
 </body>
 </html>
-
