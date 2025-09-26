@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Campus Food Preorder Form</title>
     <style>
         * {
@@ -31,10 +31,13 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
+            position: relative;
         }
 
         .main-content {
             flex: 1;
+            height: 0; /* Equivalent to Android's layout_height="0dp" */
+            min-height: 0; /* Important for flexbox to work properly */
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -43,7 +46,12 @@
         .page-container {
             position: relative;
             flex: 1;
-            overflow: hidden;
+            height: 0; /* Equivalent to Android's layout_height="0dp" */
+            min-height: 0; /* Important for flexbox to work properly */
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-bottom: 120px;
+            margin-bottom: 80px;
         }
 
         .page {
@@ -57,11 +65,59 @@
             transition: opacity 0.6s ease-in-out, visibility 0.6s ease-in-out;
             overflow-y: auto;
             overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: #ff6b6b #2a2a2a;
+        }
+
+        .page::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .page::-webkit-scrollbar-track {
+            background: #2a2a2a;
+            border-radius: 4px;
+        }
+
+        .page::-webkit-scrollbar-thumb {
+            background: #ff6b6b;
+            border-radius: 4px;
+        }
+
+        .page::-webkit-scrollbar-thumb:hover {
+            background: #ff5252;
         }
 
         .page.active {
             opacity: 1;
             visibility: visible;
+        }
+
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 107, 107, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 50%;
+            font-size: 12px;
+            z-index: 50;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+            cursor: pointer;
+            display: none;
+        }
+
+        .scroll-indicator:hover {
+            opacity: 1;
+        }
+
+        .scroll-indicator::before {
+            content: "↑↓";
+            display: block;
+            text-align: center;
         }
 
         /* Header Styles */
@@ -395,6 +451,14 @@
             background: #111111;
             border-top: 1px solid rgba(255,255,255,0.1);
             min-height: 80px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            flex-shrink: 0;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .nav-button {
@@ -577,10 +641,17 @@
 
             .nav-controls {
                 padding: 20px 15px;
-                margin: 10px;
-                border-radius: 10px;
+                margin: 0;
+                border-radius: 0;
                 flex-direction: column;
                 gap: 20px;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+                flex-shrink: 0;
+                max-width: none;
             }
 
             .nav-button {
@@ -704,10 +775,22 @@
             .nav-controls {
                 padding: 25px 20px;
                 gap: 25px;
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                z-index: 1000 !important;
+                width: 100% !important;
+                max-width: none !important;
             }
             
             .nav-button.primary {
                 -webkit-tap-highlight-color: rgba(255, 82, 82, 0.4);
+            }
+            
+            .page-container {
+                margin-bottom: 100px !important;
+                padding-bottom: 20px !important;
             }
         }
 
@@ -724,6 +807,60 @@
             .nav-button.primary {
                 -webkit-tap-highlight-color: rgba(255, 82, 82, 0.4);
             }
+            
+            .scroll-indicator {
+                right: 10px;
+                padding: 8px;
+                font-size: 10px;
+            }
+        }
+
+        /* Android device specific styles - inspired by Android layout_weight pattern */
+        .android-device .container {
+            height: 100vh;
+            min-height: 100vh;
+            max-height: 100vh;
+        }
+
+        .android-device .main-content {
+            flex: 1;
+            height: 0; /* Equivalent to Android's layout_height="0dp" */
+            min-height: 0; /* Important for flexbox to work properly */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .android-device .page-container {
+            flex: 1;
+            height: 0; /* Equivalent to Android's layout_height="0dp" */
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-bottom: 100px;
+            margin-bottom: 0;
+        }
+
+        .android-device .nav-controls {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            z-index: 1000 !important;
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 15px !important;
+            height: auto !important;
+            min-height: 80px !important;
+            flex-shrink: 0 !important;
+            /* Similar to Android's fixed navigation bar */
+            background: #111111 !important;
+            border-top: 1px solid rgba(255,255,255,0.1) !important;
+        }
+
+        .android-device .nav-button {
+            min-height: 48px !important;
+            padding: 12px 20px !important;
         }
     </style>
 </head>
@@ -1158,6 +1295,9 @@
                     <button class="nav-button primary" id="nextBtn" onclick="nextPage()">Next →</button>
                 </div>
             </div>
+            
+            <!-- Scroll Indicator -->
+            <div class="scroll-indicator" id="scrollIndicator" onclick="scrollToTop()" title="Scroll with arrow keys or click to scroll to top"></div>
         </div>
     </div>
 
@@ -2070,17 +2210,129 @@
             return false;
         });
 
-        // Prevent Enter key from submitting forms
+        // Prevent Enter key from submitting forms and add arrow key navigation
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && currentPage === 6) {
                 e.preventDefault();
                 console.log('Enter key blocked on payment page - use Complete Order button');
                 return false;
             }
+            
+            // Arrow key navigation
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                const currentPageEl = document.getElementById(`page${currentPage}`);
+                const scrollAmount = 50;
+                
+                if (e.key === 'ArrowUp') {
+                    currentPageEl.scrollBy(0, -scrollAmount);
+                } else {
+                    currentPageEl.scrollBy(0, scrollAmount);
+                }
+            }
+            
+            // Page navigation with arrow keys (left/right)
+            if (e.key === 'ArrowLeft' && currentPage > 1) {
+                e.preventDefault();
+                prevPage();
+            }
+            
+            if (e.key === 'ArrowRight' && currentPage < totalPages) {
+                e.preventDefault();
+                nextPage();
+            }
         });
+
+        // Scroll functionality
+        function scrollToTop() {
+            const currentPageEl = document.getElementById(`page${currentPage}`);
+            currentPageEl.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Show/hide scroll indicator based on scroll position
+        function updateScrollIndicator() {
+            const currentPageEl = document.getElementById(`page${currentPage}`);
+            const scrollIndicator = document.getElementById('scrollIndicator');
+            
+            if (currentPageEl.scrollTop > 100) {
+                scrollIndicator.style.display = 'block';
+            } else {
+                scrollIndicator.style.display = 'none';
+            }
+        }
+
+        // Add scroll event listeners to pages
+        function addScrollListeners() {
+            document.querySelectorAll('.page').forEach(page => {
+                page.addEventListener('scroll', updateScrollIndicator);
+            });
+        }
+
+        // Android detection and layout fix
+        function isAndroid() {
+            return /Android/i.test(navigator.userAgent);
+        }
+
+        function fixAndroidLayout() {
+            if (isAndroid()) {
+                const navControls = document.querySelector('.nav-controls');
+                const pageContainer = document.querySelector('.page-container');
+                const mainContent = document.querySelector('.main-content');
+                const container = document.querySelector('.container');
+                const body = document.body;
+                
+                // Add Android class to body for additional CSS targeting
+                body.classList.add('android-device');
+                
+                // Apply Android layout_weight pattern
+                if (container) {
+                    container.style.height = '100vh';
+                    container.style.minHeight = '100vh';
+                    container.style.maxHeight = '100vh';
+                }
+                
+                if (mainContent) {
+                    mainContent.style.flex = '1';
+                    mainContent.style.height = '0';
+                    mainContent.style.minHeight = '0';
+                }
+                
+                if (pageContainer) {
+                    pageContainer.style.flex = '1';
+                    pageContainer.style.height = '0';
+                    pageContainer.style.minHeight = '0';
+                    pageContainer.style.marginBottom = '0';
+                    pageContainer.style.paddingBottom = '100px';
+                }
+                
+                if (navControls) {
+                    navControls.style.position = 'fixed';
+                    navControls.style.bottom = '0';
+                    navControls.style.left = '0';
+                    navControls.style.right = '0';
+                    navControls.style.zIndex = '1000';
+                    navControls.style.width = '100%';
+                    navControls.style.maxWidth = 'none';
+                    navControls.style.margin = '0';
+                    navControls.style.padding = '15px';
+                    navControls.style.height = 'auto';
+                    navControls.style.minHeight = '80px';
+                    navControls.style.flexShrink = '0';
+                }
+                
+                // Ensure body doesn't have overflow issues
+                body.style.overflowX = 'hidden';
+                body.style.position = 'relative';
+            }
+        }
 
         // Initialize the form
         showPage(1);
+        addScrollListeners();
+        fixAndroidLayout();
+        
+        // Re-apply Android fix on window resize
+        window.addEventListener('resize', fixAndroidLayout);
     </script>
 </body>
 </html>
