@@ -18,6 +18,28 @@
             overflow: hidden;
             color: #ffffff;
             padding: 20px;
+            scrollbar-width: thin;
+            scrollbar-color: #ff6b6b #2a2a2a;
+        }
+
+        /* Global scrollbar styling */
+        body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        body::-webkit-scrollbar-track {
+            background: #2a2a2a;
+            border-radius: 4px;
+        }
+
+        body::-webkit-scrollbar-thumb {
+            background: #ff6b6b;
+            border-radius: 4px;
+            border: 1px solid #2a2a2a;
+        }
+
+        body::-webkit-scrollbar-thumb:hover {
+            background: #ff5252;
         }
 
         .container {
@@ -44,6 +66,28 @@
             position: relative;
             flex: 1;
             overflow: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: #ff6b6b #2a2a2a;
+        }
+
+        /* Custom scrollbar for page container */
+        .page-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .page-container::-webkit-scrollbar-track {
+            background: #2a2a2a;
+            border-radius: 4px;
+        }
+
+        .page-container::-webkit-scrollbar-thumb {
+            background: #ff6b6b;
+            border-radius: 4px;
+            border: 1px solid #2a2a2a;
+        }
+
+        .page-container::-webkit-scrollbar-thumb:hover {
+            background: #ff5252;
         }
 
         .page {
@@ -57,6 +101,32 @@
             transition: opacity 0.6s ease-in-out, visibility 0.6s ease-in-out;
             overflow-y: auto;
             overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: #ff6b6b #2a2a2a;
+        }
+
+        /* Custom scrollbar styling for WebKit browsers (Chrome, Safari, Edge) */
+        .page::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .page::-webkit-scrollbar-track {
+            background: #2a2a2a;
+            border-radius: 4px;
+        }
+
+        .page::-webkit-scrollbar-thumb {
+            background: #ff6b6b;
+            border-radius: 4px;
+            border: 1px solid #2a2a2a;
+        }
+
+        .page::-webkit-scrollbar-thumb:hover {
+            background: #ff5252;
+        }
+
+        .page::-webkit-scrollbar-thumb:active {
+            background: #ff4444;
         }
 
         .page.active {
@@ -584,6 +654,12 @@
                 text-align: center;
             }
 
+            /* Hide keyboard shortcuts on mobile */
+            .keyboard-toggle,
+            .keyboard-shortcuts {
+                display: none;
+            }
+
             .step-indicator {
                 order: -1;
                 justify-content: center;
@@ -720,6 +796,77 @@
 
         .android-device .nav-button.primary {
             -webkit-tap-highlight-color: rgba(255, 82, 82, 0.4);
+        }
+
+        /* Keyboard shortcuts indicator */
+        .keyboard-shortcuts {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(17, 17, 17, 0.9);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            color: #ffffff;
+            font-size: 12px;
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            max-width: 200px;
+        }
+
+        .keyboard-shortcuts.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .keyboard-shortcuts h4 {
+            margin: 0 0 10px 0;
+            color: #ff6b6b;
+            font-size: 13px;
+        }
+
+        .keyboard-shortcuts .shortcut {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            align-items: center;
+        }
+
+        .keyboard-shortcuts .key {
+            background: #2a2a2a;
+            border: 1px solid #ff6b6b;
+            border-radius: 3px;
+            padding: 2px 6px;
+            font-family: monospace;
+            font-size: 11px;
+            color: #ff6b6b;
+        }
+
+        .keyboard-shortcuts .description {
+            color: #b0b0b0;
+            font-size: 11px;
+        }
+
+        .keyboard-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 107, 107, 0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 201;
+            transition: background 0.3s ease;
+        }
+
+        .keyboard-toggle:hover {
+            background: rgba(255, 107, 107, 1);
         }
 
         /* Landscape phone orientation */
@@ -1167,6 +1314,34 @@
                 </div>
                 <div style="display: flex; gap: 10px;">
                     <button class="nav-button primary" id="nextBtn" onclick="nextPage()">Next →</button>
+                </div>
+            </div>
+            
+            <!-- Keyboard Shortcuts Toggle -->
+            <button class="keyboard-toggle" id="keyboardToggle" onclick="toggleKeyboardShortcuts()" title="Show keyboard shortcuts">⌨️</button>
+            
+            <!-- Keyboard Shortcuts Panel -->
+            <div class="keyboard-shortcuts" id="keyboardShortcuts">
+                <h4>Keyboard Shortcuts</h4>
+                <div class="shortcut">
+                    <span class="key">↑↓</span>
+                    <span class="description">Scroll up/down</span>
+                </div>
+                <div class="shortcut">
+                    <span class="key">←→</span>
+                    <span class="description">Previous/Next page</span>
+                </div>
+                <div class="shortcut">
+                    <span class="key">Home</span>
+                    <span class="description">Scroll to top</span>
+                </div>
+                <div class="shortcut">
+                    <span class="key">End</span>
+                    <span class="description">Scroll to bottom</span>
+                </div>
+                <div class="shortcut">
+                    <span class="key">PgUp/PgDn</span>
+                    <span class="description">Large scroll</span>
                 </div>
             </div>
         </div>
@@ -2081,12 +2256,90 @@
             return false;
         });
 
-        // Prevent Enter key from submitting forms
+        // Prevent Enter key from submitting forms and add arrow key navigation
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && currentPage === 6) {
                 e.preventDefault();
                 console.log('Enter key blocked on payment page - use Complete Order button');
                 return false;
+            }
+            
+            // Arrow key navigation for desktop devices
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                const currentPageEl = document.getElementById(`page${currentPage}`);
+                const scrollAmount = 50;
+                
+                if (e.key === 'ArrowUp') {
+                    currentPageEl.scrollBy(0, -scrollAmount);
+                } else {
+                    currentPageEl.scrollBy(0, scrollAmount);
+                }
+            }
+            
+            // Page navigation with arrow keys (left/right)
+            if (e.key === 'ArrowLeft' && currentPage > 1) {
+                e.preventDefault();
+                prevPage();
+            }
+            
+            if (e.key === 'ArrowRight' && currentPage < totalPages) {
+                e.preventDefault();
+                nextPage();
+            }
+            
+            // Additional keyboard shortcuts for desktop
+            if (e.key === 'Home') {
+                e.preventDefault();
+                const currentPageEl = document.getElementById(`page${currentPage}`);
+                currentPageEl.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            
+            if (e.key === 'End') {
+                e.preventDefault();
+                const currentPageEl = document.getElementById(`page${currentPage}`);
+                currentPageEl.scrollTo({ top: currentPageEl.scrollHeight, behavior: 'smooth' });
+            }
+            
+            // Page up/Page down for larger scroll increments
+            if (e.key === 'PageUp') {
+                e.preventDefault();
+                const currentPageEl = document.getElementById(`page${currentPage}`);
+                currentPageEl.scrollBy(0, -200);
+            }
+            
+            if (e.key === 'PageDown') {
+                e.preventDefault();
+                const currentPageEl = document.getElementById(`page${currentPage}`);
+                currentPageEl.scrollBy(0, 200);
+            }
+        });
+
+        // Keyboard shortcuts toggle
+        function toggleKeyboardShortcuts() {
+            const shortcuts = document.getElementById('keyboardShortcuts');
+            const toggle = document.getElementById('keyboardToggle');
+            
+            if (shortcuts.classList.contains('show')) {
+                shortcuts.classList.remove('show');
+                toggle.textContent = '⌨️';
+                toggle.title = 'Show keyboard shortcuts';
+            } else {
+                shortcuts.classList.add('show');
+                toggle.textContent = '✕';
+                toggle.title = 'Hide keyboard shortcuts';
+            }
+        }
+
+        // Hide keyboard shortcuts when clicking outside
+        document.addEventListener('click', function(e) {
+            const shortcuts = document.getElementById('keyboardShortcuts');
+            const toggle = document.getElementById('keyboardToggle');
+            
+            if (!shortcuts.contains(e.target) && !toggle.contains(e.target)) {
+                shortcuts.classList.remove('show');
+                toggle.textContent = '⌨️';
+                toggle.title = 'Show keyboard shortcuts';
             }
         });
 
