@@ -391,13 +391,14 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 40px;
+            padding: 25px 40px;
             background: #111111;
             border-top: 1px solid rgba(255,255,255,0.1);
+            min-height: 80px;
         }
 
         .nav-button {
-            padding: 12px 24px;
+            padding: 16px 28px;
             border: 1px solid rgba(255,255,255,0.2);
             border-radius: 8px;
             background: transparent;
@@ -406,6 +407,11 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
+            min-height: 48px;
+            min-width: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .nav-button:hover {
@@ -570,18 +576,20 @@
             }
 
             .nav-controls {
-                padding: 15px;
+                padding: 20px 15px;
                 margin: 10px;
                 border-radius: 10px;
                 flex-direction: column;
-                gap: 15px;
+                gap: 20px;
             }
 
             .nav-button {
-                padding: 12px 25px;
+                padding: 18px 30px;
                 font-size: 1em;
                 width: 100%;
                 text-align: center;
+                min-height: 52px;
+                min-width: 140px;
             }
 
             .step-indicator {
@@ -678,6 +686,43 @@
 
             .form-container {
                 padding: 20px 15px;
+            }
+        }
+
+        /* Android-specific optimizations */
+        @media screen and (-webkit-min-device-pixel-ratio: 0) {
+            .nav-button {
+                padding: 18px 32px;
+                min-height: 50px;
+                min-width: 130px;
+                -webkit-tap-highlight-color: rgba(255, 107, 107, 0.3);
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                user-select: none;
+            }
+            
+            .nav-controls {
+                padding: 25px 20px;
+                gap: 25px;
+            }
+            
+            .nav-button.primary {
+                -webkit-tap-highlight-color: rgba(255, 82, 82, 0.4);
+            }
+        }
+
+        /* Additional Android touch optimizations */
+        @media (max-width: 768px) {
+            .nav-button {
+                -webkit-tap-highlight-color: rgba(255, 107, 107, 0.3);
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                user-select: none;
+                touch-action: manipulation;
+            }
+            
+            .nav-button.primary {
+                -webkit-tap-highlight-color: rgba(255, 82, 82, 0.4);
             }
         }
     </style>
@@ -1109,7 +1154,7 @@
                     <div class="step-dot" data-step="6"></div>
                     <div class="step-dot" data-step="7"></div>
                 </div>
-                <div style="display: flex; gap: 10px;">
+                <div style="display: flex; gap: 15px; align-items: center;">
                     <button class="nav-button primary" id="nextBtn" onclick="nextPage()">Next →</button>
                 </div>
             </div>
